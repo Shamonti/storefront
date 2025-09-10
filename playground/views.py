@@ -81,12 +81,17 @@ def say_hello(request):
         total_sold=Sum("orderitem__quantity")
     ).order_by("-total_sold")[:5]
 
+    # Select products that have been ordered and sort them by title
+    products_queryset = Product.objects.filter(
+        id__in=(OrderItem.objects.values("product_id").distinct())
+    ).order_by("title")
+
     return render(
         request,
         "hello.html",
         {
             "name": "Shamonti",
             "orders": list(expensive_orders),
-            "products": list(best_sellers),
+            "products": list(products_queryset),
         },
     )
