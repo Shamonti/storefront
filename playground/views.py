@@ -74,7 +74,12 @@ def say_hello(request):
     ).filter(total_sold__gt=10)
 
     # Retrieve the most recent order for each customer.
-    # recent_orders =
+    recent_orders = Order.objects.order_by("customer", "-placed_at").distinct()
+
+    # Get the top 5 best-selling products.
+    best_sellers = Product.objects.annotate(
+        total_sold=Sum("orderitem__quantity")
+    ).order_by("-total_sold")[:5]
 
     return render(
         request,
@@ -82,6 +87,6 @@ def say_hello(request):
         {
             "name": "Shamonti",
             "orders": list(expensive_orders),
-            # "orders": list(recent_orders),
+            "products": list(best_sellers),
         },
     )

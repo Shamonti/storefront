@@ -15,10 +15,10 @@
       {% endfor %}
     </ul> {% endcomment %}
 
-    <h2>products</h2>
+    <h2>Products</h2>
     <ul>
-      {% for recent_order in recent_orders  %}
-        <li>{{ recent_order.customer.first_name }} -{{ recent_order.placed_at }} </li>
+      {% for product in products %}
+        <li>{{ product.title }} -{{ product.total_sold }} </li>
       {% endfor %}
     </ul>
   </body>
