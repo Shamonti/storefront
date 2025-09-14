@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count, Min, Avg, Max
 from store.models import CartItem, Product, Customer, Order, OrderItem, Address
 
 
@@ -86,12 +86,43 @@ def say_hello(request):
         id__in=(OrderItem.objects.values("product_id").distinct())
     ).order_by("title")
 
+    # Get the last 5 orders with their customer and items (inc product)
+    last_orders = (
+        Order.objects.select_related("customer")
+        .prefetch_related("orderitem_set__product")
+        .order_by("-placed_at")[:5]
+    )
+
+    products = Product.objects.select_related("collection").all()
+
+    orders_queryset = (
+        Order.objects.select_related("customer")
+        .prefetch_related("orderitem_set__product")
+        .order_by("-placed_at")[:5]
+    )
+
+    # Write a query to count the total number of orders in the database.
+    # result = Order.objects.aggregate(total_order=Count("id"))
+
+    # Write a query to count how many units of product with id = 1 have been sold.
+    # result = OrderItem.objects.filter(product_id=1).aggregate(
+    #     total_units=Sum("quantity")
+    # )
+
+    # Count how many orders the customer with id=1 has placed
+    # result = Order.objects.filter(customer_id=1).aggregate(Count("id"))
+
+    # Find min, max, and average price of products in collection id=3
+    result = Product.objects.filter(collection_id=3).aggregate(
+        Min("unit_price"), Max("unit_price"), Avg("unit_price")
+    )
+
     return render(
         request,
         "hello.html",
         {
             "name": "Shamonti",
-            "orders": list(expensive_orders),
-            "products": list(products_queryset),
+            # "orders": list(expensive_orders),
+            "result": result,
         },
     )

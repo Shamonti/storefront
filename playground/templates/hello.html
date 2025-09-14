@@ -15,11 +15,31 @@
       {% endfor %}
     </ul> {% endcomment %}
 
-    <h2>Products</h2>
+    {% comment %} <h2>Orders</h2>
     <ul>
-      {% for product in products %}
-        <li>{{ product.title }} </li>
-      {% endfor %}
-    </ul>
+    {% for last_order in last_orders %}
+      <li>
+        {{ last_order.placed_at }} – {{ last_order.customer.first_name }}
+        <ul>
+          {% for item in last_order.orderitem_set.all %}
+            <li>{{ item.product. title }} (x{{ item.quantity }})</li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% endfor %} {% endcomment %}
+
+    {% comment %} <h2>Order</h2>
+    {% for order in orders %}
+    <li>
+      {{ order.id }} - {{ order.customer.first_name }}
+      <ul>
+        {% for item in order.orderitem_set.all %}
+          <li>{{ item.product.title }}</li>
+        {% endfor %}
+      </ul>
+    </li>
+    {% endfor %} {% endcomment %}
+
+    <h2>Total Orders: {{ result }}</h2>
   </body>
 </html>
