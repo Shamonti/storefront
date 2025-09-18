@@ -40,6 +40,11 @@
     </li>
     {% endfor %} {% endcomment %}
 
-    <h2>Total Orders: {{ result }}</h2>
+    <h2>prices</h2>
+    {% for price in prices  %}
+      <ul>
+        <li>{{ price }}</li>
+      </ul>
+    {% endfor %}
   </body>
 </html>

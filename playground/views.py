@@ -1,6 +1,18 @@
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Sum, Count, Min, Avg, Max
+from django.db.models import (
+    Q,
+    Sum,
+    Count,
+    Min,
+    Avg,
+    Max,
+    Value,
+    F,
+    Func,
+    ExpressionWrapper,
+    DecimalField,
+)
 from store.models import CartItem, Product, Customer, Order, OrderItem, Address
 
 
@@ -113,9 +125,22 @@ def say_hello(request):
     # result = Order.objects.filter(customer_id=1).aggregate(Count("id"))
 
     # Find min, max, and average price of products in collection id=3
-    result = Product.objects.filter(collection_id=3).aggregate(
-        Min("unit_price"), Max("unit_price"), Avg("unit_price")
+    # result = Product.objects.filter(collection_id=3).aggregate(
+    #     Min("unit_price"), Max("unit_price"), Avg("unit_price")
+    # )
+
+    # customer_queryset = Customer.objects.annotate(new_id=F("id") + 1)
+
+    # customer_queryset = Customer.objects.annotate(
+    #     full_name=Func(F("first_name"), Value(" "), F("last_name"), function="CONCAT")
+    # )
+
+    customer_queryset = Customer.objects.annotate(orders_count=Count("order"))
+
+    discounted_price = ExpressionWrapper(
+        F("unit_price") * 0.8, output_field=DecimalField()
     )
+    price_queryset = Product.objects.annotate(discounted_price=discounted_price)
 
     return render(
         request,
@@ -123,6 +148,6 @@ def say_hello(request):
         {
             "name": "Shamonti",
             # "orders": list(expensive_orders),
-            "result": result,
+            "prices": price_queryset,
         },
     )
