@@ -13,7 +13,17 @@ from django.db.models import (
     ExpressionWrapper,
     DecimalField,
 )
-from store.models import CartItem, Product, Customer, Order, OrderItem, Address
+from store.models import (
+    CartItem,
+    Product,
+    Customer,
+    Order,
+    OrderItem,
+    Address,
+    Collection,
+)
+from django.contrib.contenttypes.models import ContentType
+from tags.models import TaggedItem
 
 
 def say_hello(request):
@@ -135,12 +145,19 @@ def say_hello(request):
     #     full_name=Func(F("first_name"), Value(" "), F("last_name"), function="CONCAT")
     # )
 
-    customer_queryset = Customer.objects.annotate(orders_count=Count("order"))
+    # customer_queryset = Customer.objects.annotate(orders_count=Count("order"))
 
-    discounted_price = ExpressionWrapper(
-        F("unit_price") * 0.8, output_field=DecimalField()
-    )
-    price_queryset = Product.objects.annotate(discounted_price=discounted_price)
+    # discounted_price = ExpressionWrapper(
+    #     F("unit_price") * 0.8, output_field=DecimalField()
+    # )
+    # price_queryset = Product.objects.annotate(discounted_price=discounted_price)
+
+    queryset_tags = TaggedItem.objects.get_tags_for(Product, 1)
+
+    collection = Collection()
+    collection.title = "Books"
+    collection.featured_product = Product(pk=1)
+    collection.save()
 
     return render(
         request,
@@ -148,6 +165,6 @@ def say_hello(request):
         {
             "name": "Shamonti",
             # "orders": list(expensive_orders),
-            "prices": price_queryset,
+            "tags": list(queryset_tags),
         },
     )
