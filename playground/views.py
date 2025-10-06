@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.db.models import (
     Q,
     Sum,
@@ -154,10 +155,24 @@ def say_hello(request):
 
     queryset_tags = TaggedItem.objects.get_tags_for(Product, 1)
 
-    collection = Collection()
-    collection.title = "Books"
-    collection.featured_product = Product(pk=1)
-    collection.save()
+    # collection = Collection.objects.get(pk=11)
+    # # collection.title = "Journals"
+    # collection.featured_product = None
+    # collection.save()
+
+    Collection.objects.filter(pk=11).update(title="Books")
+
+    with transaction.atomic():
+        order = Order()
+        order.customer_id = 1
+        order.save()
+
+        item = OrderItem()
+        item.order = order
+        item.quantity = 11
+        item.unit_price = 55.6
+        item.product_id = -1
+        item.save()
 
     return render(
         request,
