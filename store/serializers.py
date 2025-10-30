@@ -1,5 +1,6 @@
 from dataclasses import field
 from decimal import Decimal
+from itertools import product
 from unittest.util import _MAX_LENGTH
 from rest_framework import serializers
 
@@ -15,7 +16,16 @@ class CollectionSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'price_with_tax', 'collection']
+        fields = [
+            'id',
+            'title',
+            'slug',
+            'inventory',
+            'description',
+            'unit_price',
+            'price_with_tax',
+            'collection',
+        ]
 
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
 
