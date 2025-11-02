@@ -1,11 +1,14 @@
 from multiprocessing import context
+from typing import Collection
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Product, Collection
+from .serializers import CollectionSerializer, ProductSerializer
 from rest_framework import status
+
+from store import serializers
 
 
 @api_view(['GET', 'POST'])
@@ -47,6 +50,25 @@ def product_detail(request, id):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view()
-def collection_detail(request, pk):
-    return Response('ok')
+@api_view(['GET', 'PUT', 'DELETE'])
+def collection_detail(request, id):
+    collection = get_object_or_404(Collection, pk=id)
+    if request.method == 'GET':
+        serializer = CollectionSerializer(collection)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = CollectionSerializer(collection, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+    elif request.method == 'DELETE':
+        if collection.products.count() > 0:
+            return Response(
+                {
+                    'error': 'Collection can not be deleted because it is associated with a product.'
+                },
+                status=status.HTTP_405_METHOD_NOT_ALLOWED,
+            )
+        else:
+            collection.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)

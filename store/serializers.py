@@ -1,5 +1,6 @@
 from dataclasses import field
 from decimal import Decimal
+from gc import collect
 from itertools import product
 from unittest.util import _MAX_LENGTH
 from rest_framework import serializers
@@ -10,7 +11,12 @@ from store.models import Product, Collection
 class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
-        fields = ['id', 'title']
+        fields = ['id', 'title', 'products_count']
+
+    products_count = serializers.SerializerMethodField(method_name='get_products_count')
+
+    def get_products_count(self, collection: Collection):
+        return collection.products.count()
 
 
 class ProductSerializer(serializers.ModelSerializer):
