@@ -7,8 +7,8 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import OrderItem, Product, Collection
-from .serializers import CollectionSerializer, ProductSerializer
+from .models import OrderItem, Product, Collection, Review
+from .serializers import CollectionSerializer, ProductSerializer, ReviewSerializer
 from rest_framework import status
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -48,4 +48,15 @@ class CollectionViewSet(ModelViewSet):
                 },
                 status=status.HTTP_405_METHOD_NOT_ALLOWED,
             )
+        return super().destroy(request, *args, **kwargs)
+
+
+class ReviewViewSet(ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get_serializer_context(self):
+        return super().get_serializer_context()
+
+    def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
