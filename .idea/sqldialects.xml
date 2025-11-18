@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/../../../COURSES/Code With Mosh - The Ultimate Django Series Part 1[5H]/1.Getting Started (3m)/4- Supplementary Materials/Django- Resources/Resources/Data/seed.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/../../../COURSES/Code With Mosh - The Ultimate Django Series Part 2[6H]/1 Getting Started/3- Supplementary Materials/Django 2- Resources/Resources/Data/seed.sql" dialect="MySQL" />
-  </component>
-</project>
