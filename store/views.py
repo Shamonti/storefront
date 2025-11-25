@@ -3,10 +3,13 @@ from typing import Collection, ReadOnly
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from store.filter import ProductFilter
 from .models import OrderItem, Product, Collection, Review
 from .serializers import CollectionSerializer, ProductSerializer, ReviewSerializer
 from rest_framework import status
@@ -18,6 +21,8 @@ from store import serializers
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
 
     def get_serializer_context(self):
         return {'request': self.request}
