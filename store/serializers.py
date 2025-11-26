@@ -7,6 +7,7 @@ from unittest.util import _MAX_LENGTH
 from rest_framework import serializers
 
 from store.models import Product, Collection, Review
+from store.views import Cart
 
 
 class CollectionSerializer(serializers.ModelSerializer):
