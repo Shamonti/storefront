@@ -2,18 +2,35 @@ from typing import Collection, ReadOnly
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework import status
 from .pagination import DefaultPagination
 from .filter import ProductFilter
-from .models import Cart, Order, OrderItem, Product, Collection, Review
+from .models import Cart, CartItem, Order, OrderItem, Product, Collection, Review
 from .serializers import (
+    CartItemSerializer,
+    CartSerializer,
     CollectionSerializer,
     ProductSerializer,
     ReviewSerializer,
 )
+
+
+class CartViewSet(CreateModelMixin, RetrieveModelMixin, GenericViewSet):
+    queryset = Cart.objects.prefetch_related('items__product').all()
+    serializer_class = CartSerializer
+
+
+class CartItemViewSet(ListModelMixin, GenericViewSet):
+    serializer_class = CartItemSerializer
+
+    def get_queryset(self):
+        cart_id = self.kwargs['cart_pk']
+
+        return CartItem.objects.filter(cart_id=cart_id).select_related('product')
 
 
 class ProductViewSet(ModelViewSet):

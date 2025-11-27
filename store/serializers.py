@@ -3,10 +3,11 @@ from decimal import Decimal
 from gc import collect
 from itertools import product
 from pyexpat import model
+from turtle import mode
 from unittest.util import _MAX_LENGTH
 from rest_framework import serializers
 
-from store.models import Product, Collection, Review
+from store.models import CartItem, Product, Collection, Review
 from store.views import Cart
 
 
@@ -36,6 +37,40 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def calculate_tax(self, product: Product):
         return product.unit_price * Decimal(1.1)
+
+
+class SimpleProductSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'unit_price']
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product = SimpleProductSerializer()
+    total_price = serializers.SerializerMethodField(method_name='get_total_price')
+
+    def get_total_price(self, cartItem: CartItem):
+        return cartItem.quantity * cartItem.product.unit_price
+
+    class Meta:
+        model = CartItem
+        fields = ['cart', 'product', 'quantity', 'total_price']
+
+
+class CartSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    items = CartItemSerializer(many=True)
+    total_price = serializers.SerializerMethodField(method_name='get_total_price')
+
+    def get_total_price(self, cart: Cart):
+        return sum(
+            [item.quantity * item.product.unit_price for item in cart.items.all()]
+        )
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'items', 'total_price']
 
 
 class ReviewSerializer(serializers.ModelSerializer):
