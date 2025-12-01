@@ -35,13 +35,13 @@ class CartViewSet(
     serializer_class = CartSerializer
 
 
-class CartItemViewSet(ListModelMixin, GenericViewSet):
+class CartItemViewSet(ModelViewSet):
     serializer_class = CartItemSerializer
 
     def get_queryset(self):
-        cart_id = self.kwargs['cart_pk']
-
-        return CartItem.objects.filter(cart_id=cart_id).select_related('product')
+        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related(
+            'product'
+        )
 
 
 class ProductViewSet(ModelViewSet):
