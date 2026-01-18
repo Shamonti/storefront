@@ -7,6 +7,7 @@ from rest_framework.mixins import (
     DestroyModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
+    UpdateModelMixin,
 )
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -14,7 +15,16 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework import status
 from .pagination import DefaultPagination
 from .filter import ProductFilter
-from .models import Cart, CartItem, Order, OrderItem, Product, Collection, Review
+from .models import (
+    Cart,
+    CartItem,
+    Customer,
+    Order,
+    OrderItem,
+    Product,
+    Collection,
+    Review,
+)
 from .serializers import (
     AddCartItemSerializer,
     CartItemSerializer,
@@ -23,6 +33,7 @@ from .serializers import (
     ProductSerializer,
     ReviewSerializer,
     UpdateCartItemSerializer,
+    CustomerSerializer,
 )
 
 
@@ -108,3 +119,10 @@ class ReviewViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+
+class CustomerViewSet(
+    CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet
+):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
