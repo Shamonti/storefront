@@ -148,10 +148,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('JWT',),
-}
-
 DJOSER = {
     'TOKEN_MODEL': None,
     # other settings
@@ -159,8 +155,15 @@ DJOSER = {
 
 AUTH_USER_MODEL = 'core.User'
 
-DJOSER = {'SERIALIZERS': {'user_create': 'core.serializers.UserCreateSerializer'}}
+DJOSER = {
+    'SERIALIZERS': {
+        'user_create': 'core.serializers.UserCreateSerializer',
+        'current_user': 'core.serializers.UserSerializer',
+    }
+}
+
 
 SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT',),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 }
