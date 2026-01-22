@@ -2,6 +2,7 @@ from typing import Collection, ReadOnly
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 from rest_framework.mixins import (
     CreateModelMixin,
     DestroyModelMixin,
@@ -126,3 +127,8 @@ class CustomerViewSet(
 ):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+
+    @action(detail=False)
+    def me(self, request):
+
+        return Response(request.user.id)
