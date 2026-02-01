@@ -16,6 +16,8 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework import status
+
+from store.permissions import IsAdminOrReadOnly
 from .pagination import DefaultPagination
 from .filter import ProductFilter
 from .models import (
@@ -78,6 +80,7 @@ class ProductViewSet(ModelViewSet):
     pagination_class = DefaultPagination
     search_fields = ['title', 'description']
     ordering_fields = ['unit_price', 'last_update']
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -96,6 +99,7 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(products_count=Count('products')).all()
     serializer_class = CollectionSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_context(self):
         return super().get_serializer_context()
@@ -124,12 +128,10 @@ class ReviewViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-class CustomerViewSet(
-    CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet
-):
+class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -137,7 +139,7 @@ class CustomerViewSet(
         else:
             return [IsAuthenticated()]
 
-    @action(detail=False, methods=['GET', 'PUT'])
+    @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
         (customer, created) = Customer.objects.get_or_create(user_id=request.user.id)
         if request.method == 'GET':
