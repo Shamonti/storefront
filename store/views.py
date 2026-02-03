@@ -1,5 +1,5 @@
 from typing import Collection, ReadOnly
-from urllib import request
+from urllib import request, response
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -23,7 +23,11 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework import status
 
-from store.permissions import IsAdminOrReadOnly, FullDjangoModelPermissions
+from store.permissions import (
+    IsAdminOrReadOnly,
+    FullDjangoModelPermissions,
+    ViewCustomerHistoryPermission,
+)
 from .pagination import DefaultPagination
 from .filter import ProductFilter
 from .models import (
@@ -147,6 +151,10 @@ class CustomerViewSet(ModelViewSet):
     #         return [AllowAny()]
     #     else:
     #         return [IsAuthenticated()]
+
+    @action(detail=True, permission_classes=[ViewCustomerHistoryPermission])
+    def history(self, request, pk):
+        return Response('ok')
 
     @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
