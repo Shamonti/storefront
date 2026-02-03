@@ -11,13 +11,19 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny,
+    DjangoModelPermissionsOrAnonReadOnly,
+    DjangoModelPermissions,
+    IsAdminUser,
+)
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework import status
 
-from store.permissions import IsAdminOrReadOnly
+from store.permissions import IsAdminOrReadOnly, FullDjangoModelPermissions
 from .pagination import DefaultPagination
 from .filter import ProductFilter
 from .models import (
@@ -131,13 +137,16 @@ class ReviewViewSet(ModelViewSet):
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
+    # permission_classes = [FullDjangoModelPermissions]
+    # permission_classes = [DjangoModelPermissions]
+    permission_classes = [IsAdminUser]
 
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        else:
-            return [IsAuthenticated()]
+    # def get_permissions(self):
+    #     if self.request.method == 'GET':
+    #         return [AllowAny()]
+    #     else:
+    #         return [IsAuthenticated()]
 
     @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
