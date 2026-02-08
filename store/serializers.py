@@ -1,13 +1,7 @@
-from dataclasses import field, fields
 from decimal import Decimal
-from gc import collect
-from itertools import product
-from pyexpat import model
-from turtle import mode
-from unittest.util import _MAX_LENGTH
+from django.db import transaction
 from rest_framework import serializers
-
-from store.models import (
+from .models import (
     CartItem,
     Customer,
     Order,
@@ -17,7 +11,6 @@ from store.models import (
     Review,
 )
 from store.views import Cart
-from tags import models
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -154,13 +147,30 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class CreateOrderSerializer(serializers.Serializer):
-    cart_id = serializers.UUIDField()
+    with transaction.atomic():
+        cart_id = serializers.UUIDField()
 
-    def save(self, **kwargs):
-        print(self.validated_data['cart_id'])
-        print(self.context['user_id'])
+        def save(self, **kwargs):
+            card_id = self.validated_data['cart_id']
+            (customer, created) = Customer.objects.get_or_create(
+                user_id=self.context['user_id']
+            )
+            order = Order.objects.create(customer=customer)
 
-        (customer, created) = Customer.objects.get_or_create(
-            user_id=self.context['user_id']
-        )
-        Order.objects.create(customer=customer)
+            cart_items = CartItem.objects.select_related('product').filter(
+                cart_id=card_id
+            )
+
+            order_items = [
+                OrderItem(
+                    order=order,
+                    product=item.product,
+                    unit_price=item.product.unit_price,
+                    quantity=item.quantity,
+                )
+                for item in cart_items
+            ]
+
+            OrderItem.objects.bulk_create(order_items)
+
+            Cart.objects.filter(pk=card_id).delete()
