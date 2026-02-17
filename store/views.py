@@ -51,6 +51,7 @@ from .serializers import (
     ReviewSerializer,
     UpdateCartItemSerializer,
     CustomerSerializer,
+    UpdateOrderSerializer,
 )
 
 
@@ -191,8 +192,9 @@ class OrderViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateOrderSerializer
-        else:
-            return OrderSerializer
+        elif self.request.method == 'PATCH':
+            return UpdateOrderSerializer
+        return OrderSerializer
 
     def get_queryset(self):
         user = self.request.user
